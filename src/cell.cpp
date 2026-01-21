@@ -5,6 +5,7 @@ Cell::Cell(int h, int l)
     m_lenght = l;
     m_depth = h;
     m_light = (500-h) / 5;
+    m_agents = {};
 }
 
 std::vector<IAgent> Cell::getAgents()

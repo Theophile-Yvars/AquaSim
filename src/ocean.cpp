@@ -4,8 +4,7 @@
 #include <random>
 
 
-Ocean::Ocean()
-{
+Ocean::Ocean(){
     m_tour = 0;
     // i hauteur : y longueur
     for(int i = 0; i < 1000; i ++){
@@ -16,9 +15,11 @@ Ocean::Ocean()
 }
 
 void Ocean::update(){
-    for(Cell cell : m_cells){
-        for(IAgent agent : m_cells){
-            agent.update();
+    for(int i = 0; i < 1000; i ++){
+        for(int y = 0; y < 1000; y ++){
+            for(IAgent agent : m_cells[i][y].getAgents()){
+                agent.update();
+            }
         }
     }
 }
@@ -42,12 +43,9 @@ void Ocean::init(){
             if(i < 500){
                 nombre = dist(gen);
                 if(nombre > 60){
-                    m_cells[i][y].addAgent(Algea(80, 0));
+                    m_cells[i][y].addAgent(Algae(80, 0));
                 }
             }
-            m_cells[i][y].setDepth(i);
-            m_cells[i][y].setLenght(y);
-            m_cells[i][y].initLight();
         }
         if(i == 500) break;
     }

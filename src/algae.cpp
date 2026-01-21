@@ -1,11 +1,16 @@
 #include "algae.hpp"
 
-void Algae::update(int light){
-    m_life = m_life + m_life*light;
+
+Algae::Algae(int life, int age) : m_life(life), m_age(age){}
+
+void Algae::update()
+{
+    m_age += 1;
 }
 
-void Algae::reproduction(){
-    
+void Algae::reproduction()
+{
+    if(m_life >= 100){
+        
+    }
 }
-
-Algea::Algea(int life, int age) : m_life(life), m_age(age){}

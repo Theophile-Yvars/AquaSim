@@ -2,6 +2,6 @@
 
 class IAgent{
     public:
-    void update();
-    void reproduction();
+    virtual void update();
+    virtual void reproduction();
 };
