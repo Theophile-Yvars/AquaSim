@@ -5,11 +5,13 @@
 class Ocean{
     private:
     int m_tour;
-    Cell m_cells[1000][1000];
+    std::vector<std::vector<std::unique_ptr<Cell>>> m_cells;
+    int _randomNumber(int max);
 
     public:
     Ocean();
     void update();
     void display();
     void init();
+    void runSimulation(int nbTour);
 };
