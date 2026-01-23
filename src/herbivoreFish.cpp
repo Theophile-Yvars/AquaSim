@@ -16,7 +16,7 @@ int HerbivoreFish::getAge() { return m_age; }
 void HerbivoreFish::addAge() { m_age++; }
 
 bool HerbivoreFish::isDead() {
-    return m_life <= 0 || m_age >= 7;
+    return m_life <= 0 || m_age >= 5;
 }
 
 AgentType HerbivoreFish::getType() const {

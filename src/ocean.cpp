@@ -1,6 +1,7 @@
 #include "ocean.hpp"
 #include "algae.hpp"
 #include "herbivoreFish.hpp"
+#include "carnivoreFish.hpp"
 #include "cell.hpp"
 
 #include <random>
@@ -32,24 +33,40 @@ void Ocean::_moveAlgae(size_t i, size_t y)
         {
             if (_randomNumber(99) < 60)
             {
-                int direction = _randomNumber(7);
                 int ni = static_cast<int>(i);
                 int ny = static_cast<int>(y);
 
-                switch (direction)
+                // Déplacer jusqu'à 8 cases
+                int steps = _randomNumber(7) + 1; // 1 à 8 cases
+                for (int step = 0; step < steps; ++step)
                 {
-                    case 0: ni--; break;
-                    case 1: ni--; ny++; break;
-                    case 2: ny++; break;
-                    case 3: ni++; ny++; break;
-                    case 4: ni++; break;
-                    case 5: ni++; ny--; break;
-                    case 6: ny--; break;
-                    case 7: ni--; ny--; break;
+                    int direction = _randomNumber(7);
+                    int next_i = ni;
+                    int next_y = ny;
+
+                    switch (direction)
+                    {
+                        case 0: next_i--; break;
+                        case 1: next_i--; next_y++; break;
+                        case 2: next_y++; break;
+                        case 3: next_i++; next_y++; break;
+                        case 4: next_i++; break;
+                        case 5: next_i++; next_y--; break;
+                        case 6: next_y--; break;
+                        case 7: next_i--; next_y--; break;
+                    }
+
+                    // Vérifier limites
+                    if (next_i < 0 || next_i >= (int)m_cells.size() ||
+                        next_y < 0 || next_y >= (int)m_cells[ni].size())
+                        break; // stop si hors limites
+
+                    ni = next_i;
+                    ny = next_y;
                 }
 
-                if (ni >= 0 && ni < (int)m_cells.size() &&
-                    ny >= 0 && ny < (int)m_cells[i].size())
+                // Déplacer l'algue
+                if (ni != (int)i || ny != (int)y)
                 {
                     m_cells[ni][ny]->addAgent(std::move(*it));
                     it = agents.erase(it);
@@ -61,12 +78,14 @@ void Ocean::_moveAlgae(size_t i, size_t y)
     }
 }
 
+
 /* ================= MOVE HERBIVORES ================= */
 
 void Ocean::_moveHerbivor(size_t i, size_t y)
 {
     auto& agents = m_cells[i][y]->getAgents();
 
+    // Vérifier présence d'algues
     bool isAlgaePresent = false;
     for (auto& agent : agents)
     {
@@ -77,31 +96,113 @@ void Ocean::_moveHerbivor(size_t i, size_t y)
         }
     }
 
-    if (isAlgaePresent)
-        return;
+    for (auto it = agents.begin(); it != agents.end(); )
+    {
+        if (auto herbi = dynamic_cast<HerbivoreFish*>(it->get()))
+        {
+            int ni = static_cast<int>(i);
+            int ny = static_cast<int>(y);
+
+            if (isAlgaePresent)
+            {
+                // Déplacement aléatoire d'une case
+                if (_randomNumber(99) < 60)
+                {
+                    int direction = _randomNumber(7);
+                    switch (direction)
+                    {
+                        case 0: ni--; break;
+                        case 1: ni--; ny++; break;
+                        case 2: ny++; break;
+                        case 3: ni++; ny++; break;
+                        case 4: ni++; break;
+                        case 5: ni++; ny--; break;
+                        case 6: ny--; break;
+                        case 7: ni--; ny--; break;
+                    }
+                }
+            }
+            else
+            {
+                // Pas d'algues : monter vers le niveau 2
+                if (ni > 2)
+                    ni--; // monte d'une case vers le haut
+            }
+
+            // Déplacement si toujours dans les limites
+            if (ni >= 0 && ni < (int)m_cells.size() &&
+                ny >= 0 && ny < (int)m_cells[i].size() &&
+                (ni != (int)i || ny != (int)y))
+            {
+                m_cells[ni][ny]->addAgent(std::move(*it));
+                it = agents.erase(it);
+                continue;
+            }
+        }
+
+        ++it;
+    }
+}
+
+
+/* ================= MOVE CARNIVORES ================= */
+
+void Ocean::_moveCarnivore(size_t i, size_t y)
+{
+    auto& agents = m_cells[i][y]->getAgents();
 
     for (auto it = agents.begin(); it != agents.end(); )
     {
-        if (dynamic_cast<HerbivoreFish*>(it->get()))
+        if (auto carni = dynamic_cast<CarnivoreFish*>(it->get()))
         {
-            if (_randomNumber(99) < 60)
+            int ni = static_cast<int>(i);
+            int ny = static_cast<int>(y);
+
+            if (carni->getLife() <= 70) // Faim → remonter vers le niveau 2
             {
-                int direction = _randomNumber(7);
-                int ni = static_cast<int>(i);
-                int ny = static_cast<int>(y);
-
-                switch (direction)
+                for (int step = 0; step < 5; ++step)
                 {
-                    case 0: ni--; break;
-                    case 1: ni--; ny++; break;
-                    case 2: ny++; break;
-                    case 3: ni++; ny++; break;
-                    case 4: ni++; break;
-                    case 5: ni++; ny--; break;
-                    case 6: ny--; break;
-                    case 7: ni--; ny--; break;
-                }
+                    if (ni <= 2) break; // niveau 2 max
+                    // Vérifier herbivores sur la case au-dessus
+                    bool herbivorePresent = false;
+                    for (auto& agent : m_cells[ni-1][ny]->getAgents())
+                        if (dynamic_cast<HerbivoreFish*>(agent.get()))
+                            herbivorePresent = true;
 
+                    if (herbivorePresent) break; // stop si herbivore
+                    --ni; // monter d'une case
+                }
+            }
+            else if (carni->getLife() >= 90) // Roplu → descendre vers le niveau 18
+            {
+                for (int step = 0; step < 5; ++step)
+                {
+                    if (ni >= 18) break; // niveau 18 max
+                    ++ni; // descendre d'une case
+                }
+            }
+            else // Déplacement aléatoire normal
+            {
+                if (_randomNumber(99) < 60)
+                {
+                    int direction = _randomNumber(7);
+                    switch (direction)
+                    {
+                        case 0: ni--; break;
+                        case 1: ni--; ny++; break;
+                        case 2: ny++; break;
+                        case 3: ni++; ny++; break;
+                        case 4: ni++; break;
+                        case 5: ni++; ny--; break;
+                        case 6: ny--; break;
+                        case 7: ni--; ny--; break;
+                    }
+                }
+            }
+
+            // Déplacer si nouveau niveau différent
+            if (ni != (int)i || ny != (int)y)
+            {
                 if (ni >= 0 && ni < (int)m_cells.size() &&
                     ny >= 0 && ny < (int)m_cells[i].size())
                 {
@@ -111,6 +212,7 @@ void Ocean::_moveHerbivor(size_t i, size_t y)
                 }
             }
         }
+
         ++it;
     }
 }
@@ -186,6 +288,40 @@ void Ocean::_reproduceHerbivores(size_t i, size_t y)
         m_cells[i][y]->addAgent(std::move(child));
 }
 
+/* ================= REPRODUCTION CARNIVORES ================= */
+
+void Ocean::_reproduceCarnivores(size_t i, size_t y)
+{
+    auto& agents = m_cells[i][y]->getAgents();
+    std::vector<CarnivoreFish*> eligible;
+
+    // 1. Sélection des carnivores éligibles
+    for (auto& agent : agents)
+    {
+        if (auto carni = dynamic_cast<CarnivoreFish*>(agent.get()))
+        {
+            if (carni->getLife() >= 80 && carni->getAge() >= 7)
+                eligible.push_back(carni);
+        }
+    }
+
+    // 2. Création des enfants
+    std::vector<std::unique_ptr<IAgent>> newAgents;
+
+    for (size_t j = 0; j + 1 < eligible.size(); j += 2)
+    {
+        int nbChildren = _randomNumber(4); // 0 à 4
+
+        for (int k = 0; k < nbChildren; k++)
+            newAgents.push_back(std::make_unique<CarnivoreFish>(50, 0));
+    }
+
+    // 3. Ajout dans la cellule
+    for (auto& child : newAgents)
+        m_cells[i][y]->addAgent(std::move(child));
+}
+
+
 /* ================= EAT ================= */
 
 void Ocean::_eat(size_t i, size_t y)
@@ -231,6 +367,44 @@ void Ocean::_eat(size_t i, size_t y)
     }
 }
 
+void Ocean::_eatCarnivor(size_t i, size_t y)
+{
+    auto& agents = m_cells[i][y]->getAgents();
+
+    for (auto& elt : agents)
+    {
+        if (auto carni = dynamic_cast<CarnivoreFish*>(elt.get()))
+        {
+            // Pas faim → ne chasse pas
+            if (carni->getLife() > 70)
+                continue;
+
+            bool hasEaten = false;
+
+            for (auto it = agents.begin(); it != agents.end(); )
+            {
+                if (auto herbi = dynamic_cast<HerbivoreFish*>(it->get()))
+                {
+                    carni->setLife(std::min(100, carni->getLife() + 50));
+                    it = agents.erase(it); // herbivore mangé
+                    hasEaten = true;
+                    break; // un seul herbivore par tour
+                }
+                else
+                    ++it;
+            }
+
+            // Faim mais rien trouvé
+            if (!hasEaten)
+            {
+                carni->setLife(carni->getLife() - 5);
+            }
+        }
+    }
+}
+
+
+
 /* ================= AGE ================= */
 
 void Ocean::_ageing(size_t i, size_t y)
@@ -263,10 +437,13 @@ void Ocean::update()
         for (size_t y = 0; y < m_cells[i].size(); y++)
         {
             _eat(i, y);
+            _eatCarnivor(i,y);
             _reproductionAlgae(i, y);
             _reproduceHerbivores(i, y);
+            _reproduceCarnivores(i,y);
             _moveAlgae(i, y);
             _moveHerbivor(i, y);
+            _moveCarnivore(i,y);
             _deadAgent(i, y);
             _ageing(i, y);
         }
@@ -311,24 +488,53 @@ void Ocean::display()
 
 /* ================= INIT & RUN ================= */
 
-void Ocean::init()
+void Ocean::initAlgae()
 {
     for (size_t i = 0; i < m_cells.size(); i++)
     {
         for (size_t y = 0; y < m_cells[i].size(); y++)
         {
-            if (i < 10 && _randomNumber(99) < 60)
+            if (i < 20 && _randomNumber(99) < 60)
                 m_cells[i][y]->addAgent(make_unique<Algae>(50, 0));
+        }
+    }
+}
 
-            if (i >= 5 && i <= 15 && _randomNumber(99) < 40)
+void Ocean::initHerbivore()
+{
+    for (size_t i = 0; i < m_cells.size(); i++)
+    {
+        for (size_t y = 0; y < m_cells[i].size(); y++)
+        {
+            if (i >= 5 && i <= 15 && _randomNumber(99) < 60)
                 m_cells[i][y]->addAgent(make_unique<HerbivoreFish>(50, 0));
+            if (i >= 5 && i <= 15 && _randomNumber(99) < 60)
+                m_cells[i][y]->addAgent(make_unique<HerbivoreFish>(50, 0));
+            if (i >= 5 && i <= 15 && _randomNumber(99) < 60)
+                m_cells[i][y]->addAgent(make_unique<HerbivoreFish>(50, 0));
+        }
+    }
+}
+
+void Ocean::initCarnivore()
+{
+    for (size_t i = 0; i < m_cells.size(); i++)
+    {
+        for (size_t y = 0; y < m_cells[i].size(); y++)
+        {
+            if (i >= 10 && i <= 20 && _randomNumber(99) < 80)
+                m_cells[i][y]->addAgent(make_unique<CarnivoreFish>(50, 0));
         }
     }
 }
 
 void Ocean::runSimulation(int nbTour)
 {
-    init();
+    initAlgae();
+    for (int i = 0; i < 10; i++)
+        update();
+    initHerbivore();
+    initCarnivore();
     for (int i = 0; i < nbTour; i++)
         update();
 }

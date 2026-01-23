@@ -22,25 +22,25 @@ Cell::Cell(int h, int l)
         m_light = 40;
         break;
     case 4:
-        m_light = 30;
+        m_light = 40;
         break;
     case 5:
-        m_light = 30;
+        m_light = 40;
         break;
     case 6:
-        m_light = 20;
+        m_light = 40;
         break;
     case 7:
-        m_light = 20;
+        m_light = 30;
         break;
     case 8:
-        m_light = 10;
+        m_light = 30;
         break;
     case 9:
-        m_light = 10;
+        m_light = 30;
         break;
     default:
-        m_light = 0;
+        m_light = 20;
         break;
     }
 }
