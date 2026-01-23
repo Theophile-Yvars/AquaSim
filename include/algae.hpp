@@ -7,6 +7,7 @@ class Algae:public IAgent{
     int getLife() override;
     void setLife(int life) override;
     void addAge() override;
+    int getAge() override;
     bool isDead() override;
     AgentType getType() const override;
 

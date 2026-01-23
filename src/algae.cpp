@@ -24,6 +24,11 @@ void Algae::addAge()
     m_age += 1;
 }
 
+int Algae::getAge()
+{
+    return m_age;
+}
+
 bool Algae::isDead()
 {
     if(m_age >= 10) return true;
