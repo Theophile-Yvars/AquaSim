@@ -4,7 +4,6 @@
 class Algae:public IAgent{
     public:
     Algae(int life, int age);
-    void update() override;
     int getLife() override;
     void setLife(int life) override;
     void addAge() override;

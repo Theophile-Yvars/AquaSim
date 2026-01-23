@@ -9,7 +9,8 @@ class Cell{
     std::vector<std::unique_ptr<IAgent>>& getAgents();
     void addAgent(std::unique_ptr<IAgent> agent);
     void reproduction();
-
+    int getLight();
+    
     private:
     std::vector<std::unique_ptr<IAgent>> m_agents;
     int m_depth;

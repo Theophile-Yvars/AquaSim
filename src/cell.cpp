@@ -7,7 +7,42 @@ Cell::Cell(int h, int l)
 {
     m_lenght = l;
     m_depth = h;
-    m_light = (500-h) / 5;
+    switch (h)
+    {
+    case 0:
+        m_light = 50;
+        break;
+    case 1:
+        m_light = 50;
+        break;
+    case 2:
+        m_light = 40;
+        break;
+    case 3:
+        m_light = 40;
+        break;
+    case 4:
+        m_light = 30;
+        break;
+    case 5:
+        m_light = 30;
+        break;
+    case 6:
+        m_light = 20;
+        break;
+    case 7:
+        m_light = 20;
+        break;
+    case 8:
+        m_light = 10;
+        break;
+    case 9:
+        m_light = 10;
+        break;
+    default:
+        m_light = 0;
+        break;
+    }
 }
 
 std::vector<std::unique_ptr<IAgent>>& Cell::getAgents()
@@ -16,7 +51,22 @@ std::vector<std::unique_ptr<IAgent>>& Cell::getAgents()
 }
 
 void Cell::addAgent(std::unique_ptr<IAgent> agent)
-{   
+{
+    if (!agent) return; // sécurité
+
+    // Compter le nombre d'agents du même type déjà présents
+    AgentType type = agent->getType();
+    int count = 0;
+    for (auto& a : m_agents) {
+        if (a->getType() == type) count++;
+    }
+
+    // Limite à 1000 par type
+    if (count >= 1000) {
+        // On ne l'ajoute pas
+        return;
+    }
+
     m_agents.push_back(std::move(agent));
 }
 
@@ -37,4 +87,9 @@ void Cell::reproduction()
     for (auto& newAgent : newAgents) {
         m_agents.push_back(std::move(newAgent));
     }
-}
+ }
+
+ int Cell::getLight()
+ {
+     return m_light;
+ }
