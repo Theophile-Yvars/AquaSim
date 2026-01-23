@@ -33,3 +33,8 @@ Mise à jour de l’état de l’océan à chaque tour :
 ## Affichage dans la console avec une représentation des cellules :
 
 (  136🌱,  145🐟,    2🦈) || (  166🌱,  156🐟,    1🦈) ...
+
+## Run application
+```bash
+make
+./app
