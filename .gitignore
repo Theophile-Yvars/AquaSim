@@ -43,3 +43,6 @@
 app
 
 .vscode
+
+./build/*
+**/build/
