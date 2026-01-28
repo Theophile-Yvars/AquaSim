@@ -70,6 +70,20 @@ Le projet utilise GoogleTest pour les tests unitaires.
 ./tests/runTests --gtest_list_tests
 ```
 
+## Coverage de code
+
+Le projet fournit un script coverage.sh qui compile le projet avec les flags de couverture, lance les tests et génère un rapport HTML.
+
+Utilisation
+
+```bash
+./coverage.sh
+```
+
+* Sous WSL : le dossier du rapport s’ouvre automatiquement dans l’explorateur Windows, et vous pouvez double‑cliquer sur index.html pour visualiser le rapport dans un navigateur.
+
+* Sous Linux : le script tente d’ouvrir le rapport avec xdg-open. Sinon, ouvrez build/coverage-report/index.html manuellement.
+
 ## Nettoyer le projet
 
 Pour supprimer tous les fichiers de build :

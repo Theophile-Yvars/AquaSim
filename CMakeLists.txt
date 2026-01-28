@@ -3,6 +3,15 @@ project(AquaSim)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# En début de CMakeLists.txt
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+
+if(ENABLE_COVERAGE)
+    message(STATUS "Building with coverage flags")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g --coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif()
+
 # Code principal
 add_library(aquasim
     src/algae.cpp
