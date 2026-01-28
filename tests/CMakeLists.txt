@@ -7,6 +7,7 @@ enable_testing()
 # Exécutable de test
 add_executable(runTests
     test_algae.cpp
+    test_carnivoreFish.cpp
 )
 
 # Inclure les headers du projet
