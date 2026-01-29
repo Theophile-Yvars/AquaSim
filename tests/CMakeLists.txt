@@ -9,6 +9,7 @@ add_executable(runTests
     test_algae.cpp
     test_carnivoreFish.cpp
     test_herbivoreFish.cpp
+    test_cell.cpp
 )
 
 # Inclure les headers du projet
