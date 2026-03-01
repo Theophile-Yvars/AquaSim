@@ -2,6 +2,8 @@
 
 Simulation d’un écosystème marin avec des algues, des poissons herbivores et des carnivores, codée en C++.
 
+![Screenshot du jeu](assets/ocean.png)
+
 ## Description
 
 Ce projet simule la vie dans un océan représenté par une grille de cellules. Chaque cellule peut contenir différents agents :
