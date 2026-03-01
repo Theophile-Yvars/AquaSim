@@ -2,6 +2,8 @@
 
 Simulation d’un écosystème marin avec des algues, des poissons herbivores et des carnivores, codée en C++.
 
+![Screenshot du jeu](assets/ocean.png)
+
 ## Description
 
 Ce projet simule la vie dans un océan représenté par une grille de cellules. Chaque cellule peut contenir différents agents :
@@ -34,7 +36,60 @@ Mise à jour de l’état de l’océan à chaque tour :
 
 (  136🌱,  145🐟,    2🦈) || (  166🌱,  156🐟,    1🦈) ...
 
-## Run application
+## Build du projet
+
+Le projet utilise CMake pour compiler la lib, l’application principale et les tests.
+
 ```bash
-make
-./app
+# Créer un dossier build et configurer le projet
+mkdir build
+cd build
+cmake ..
+
+# Compiler le projet et les tests
+cmake --build .
+```
+
+## Lancer l’application principale
+
+```bash
+# Depuis le dossier build
+./AquaSimMain
+```
+
+## Lancer les tests
+
+Le projet utilise GoogleTest pour les tests unitaires.
+
+```bash
+# Lancer tous les tests
+./tests/runTests
+
+# Lancer un test spécifique
+./tests/runTests --gtest_filter=AlgaeTest.*
+
+# Voir la liste des tests disponibles
+./tests/runTests --gtest_list_tests
+```
+
+## Coverage de code
+
+Le projet fournit un script coverage.sh qui compile le projet avec les flags de couverture, lance les tests et génère un rapport HTML.
+
+Utilisation
+
+```bash
+./coverage.sh
+```
+
+* Sous WSL : le dossier du rapport s’ouvre automatiquement dans l’explorateur Windows, et vous pouvez double‑cliquer sur index.html pour visualiser le rapport dans un navigateur.
+
+* Sous Linux : le script tente d’ouvrir le rapport avec xdg-open. Sinon, ouvrez build/coverage-report/index.html manuellement.
+
+## Nettoyer le projet
+
+Pour supprimer tous les fichiers de build :
+
+```bash
+rm -rf build
+```
